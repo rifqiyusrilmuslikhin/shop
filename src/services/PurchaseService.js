@@ -28,32 +28,6 @@ class PurchaseService {
 
     return result.rows[0].id;
   }
-
-  // async updatePayment(id, { payment, remainingPayment, status }) {
-  //   const query = {
-  //     text: 'UPDATE purchase_details SET payment = $1, remaining_payment = $2, status = $3 WHERE id = $4 RETURNING id',
-  //     values: [id, payment, remainingPayment, status],
-  //   };
-  
-  //   const result = await this._pool.query(query);
-
-  //   if (!result.rows.length) {
-  //     throw new NotFoundError('Gagal memperbarui pembayaran. Id tidak ditemukan');
-  //   }
-  // }
-
-  // async editAlbumById(id, { name, year }) {
-  //   const query = {
-  //     text: 'UPDATE albums SET name = $1, year = $2 WHERE id = $3 RETURNING id',
-  //     values: [name, year, id],
-  //   };
-
-  //   const result = await this._pool.query(query);
-
-  //   if (!result.rows.length) {
-  //     throw new NotFoundError('Gagal memperbarui album. Id tidak ditemukan');
-  //   }
-  // }
   
   async updatePoints(userId, totalPoints) {
     const query = {

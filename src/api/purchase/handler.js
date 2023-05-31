@@ -53,19 +53,6 @@ class PurchaseHandler {
         response.code(201);
         return response;
       }
-
-      // async putPaymentPurchase(request) {
-      //   this._validator.validatePurchasePayload(request.payload);
-      //   const { name, year } = request.payload;
-      //   const { id } = request.params;
-    
-      //   await this._albumsService.editAlbumById(id, { name, year });
-    
-      //   return {
-      //     status: 'success',
-      //     message: 'Pembayaran Berhasil',
-      //   };
-      // }
   }
   
   module.exports = PurchaseHandler;
