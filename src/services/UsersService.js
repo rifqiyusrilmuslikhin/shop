@@ -10,14 +10,14 @@ class UsersService {
     this._pool = new Pool();
   }
 
-  async addUser({ username, password, fullname, points }) {
+  async addUser({ username, password, fullname, email, phone, address, points }) {
     await this.verifyNewUsername(username);
     const id = `user-${nanoid(16)}`;
     const hashedPassword = await bcrypt.hash(password, 10);
     const pointsValue = points || 0;
     const query = {
-      text: 'INSERT INTO users VALUES($1, $2, $3, $4, $5) RETURNING id',
-      values: [id, username, hashedPassword, fullname, pointsValue],
+      text: 'INSERT INTO users VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
+      values: [id, username, hashedPassword, fullname, email, phone, address, pointsValue],
     };
 
     const result = await this._pool.query(query);
@@ -35,7 +35,7 @@ class UsersService {
 
   async getUserById(userId) {
     const query = {
-      text: 'SELECT id, username, fullname FROM users WHERE id = $1',
+      text: 'SELECT * FROM users WHERE id = $1',
       values: [userId],
     };
 

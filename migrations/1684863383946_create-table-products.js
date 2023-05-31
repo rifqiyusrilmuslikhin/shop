@@ -10,6 +10,10 @@ exports.up = (pgm) => {
         type: 'VARCHAR(50)',
         notNull: true,
       },
+      description: {
+        type: 'TEXT',
+        notNull: true,
+      },
       price: {
         type: 'NUMERIC(10)',
         notNull: true,
@@ -17,7 +21,11 @@ exports.up = (pgm) => {
       owner: {
         type: 'VARCHAR(50)',
         notNull: true,
-      }
+      },
+      img: {
+        type: 'VARCHAR(255)',
+        notNull: false,
+      },
     });
 
     pgm.addConstraint('products','fk_products.owner_admin.id','FOREIGN KEY(owner) REFERENCES admin(id) ON DELETE CASCADE');

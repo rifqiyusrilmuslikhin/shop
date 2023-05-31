@@ -13,20 +13,34 @@ const routes = (handler) => [
       handler: handler.getAllProductHandler,
     },
     {
-        method: 'PUT',
-        path: '/api/products/{id}',
-        handler: handler.putProductByIdHandler,
-        options: {
-          auth: 'shop_jwt',
-        },
+      method: 'PUT',
+      path: '/api/products/{id}',
+      handler: handler.putProductByIdHandler,
+      options: {
+        auth: 'shop_jwt',
+      },
     },
     {
-        method: 'DELETE',
-        path: '/api/products/{id}',
-        handler: handler.deleteProductByIdHandler,
-        options: {
-          auth: 'shop_jwt',
+      method: 'DELETE',
+      path: '/api/products/{id}',
+      handler: handler.deleteProductByIdHandler,
+      options: {
+        auth: 'shop_jwt',
+      },
+    },
+    {
+      method: 'POST',
+      path: '/api/products/{id}/img',
+      handler: handler.postUploadImageHandler,
+      options: {
+        auth: 'shop_jwt',
+        payload: {
+          allow: 'multipart/form-data',
+          multipart: true,
+          maxBytes: 512000,
+          output: 'stream',
         },
+      },
     },
   ];
   

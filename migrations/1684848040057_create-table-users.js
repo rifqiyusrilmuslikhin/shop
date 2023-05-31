@@ -19,6 +19,18 @@ exports.up = (pgm) => {
         type: 'TEXT',
         notNull: true,
       },
+      email: {
+        type: 'TEXT',
+        notNull: true,
+      },
+      phone: {
+        type: 'TEXT',
+        notNull: true,
+      },
+      address: {
+        type: 'TEXT',
+        notNull: true,
+      },
       points: {
         type: 'INTEGER',
         defaultValue: 0,

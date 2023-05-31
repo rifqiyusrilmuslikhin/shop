@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
+const path = require('path');
 
 const ClientError = require('./exceptions/ClientError');
 const TokenManager = require('./tokenize/TokenManager');
@@ -26,17 +27,15 @@ const purchase = require('./api/purchase');
 const PurchaseService = require('./services/PurchaseService');
 const PurchaseValidator = require('./validator/purchase');
 
-const redeem = require('./api/redeem');
-const RedeemService = require('./services/RedeemService');
-const RedeemValidator = require('./validator/redeem');
+const StorageService = require('./services/StorageService');
 
 const init = async () => {
+  const storageService = new StorageService(path.resolve(__dirname, 'api/uploads/file/images'));
   const adminService = new AdminService();
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
   const productsService = new ProductsService();
   const purchaseService = new PurchaseService();
-  const redeemService = new RedeemService();
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -98,22 +97,18 @@ const init = async () => {
     {
       plugin: products,
       options: {
-        service: productsService,
+        productsService,
+        storageService,
         validator: ProductsValidator,
       },
     },
     {
       plugin: purchase,
       options: {
-        service: purchaseService,
+        purchaseService,
+        productsService,
+        usersService,
         validator: PurchaseValidator,
-      },
-    },
-    {
-      plugin: redeem,
-      options: {
-        service: redeemService,
-        validator: RedeemValidator,
       },
     },
   ]);

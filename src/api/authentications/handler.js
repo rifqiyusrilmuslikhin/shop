@@ -5,7 +5,7 @@ class AuthenticationsHandler {
       this._adminService = adminService;
       this._tokenManager = tokenManager;
       this._validator = validator;
-  
+      
       this.postAdminAuthenticationHandler = this.postAdminAuthenticationHandler.bind(this);
       this.postUserAuthenticationHandler = this.postUserAuthenticationHandler.bind(this);
       this.putAuthenticationHandler = this.putAuthenticationHandler.bind(this);

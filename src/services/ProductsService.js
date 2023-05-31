@@ -9,15 +9,19 @@ class ProductsService {
     this._pool = new Pool();
   }
 
-  async addProduct({ productName, price, owner }) {
+  async addProduct({ productName, description, price, owner }) {
     const id = `product-${nanoid(16)}`;
 
     const query = {
-      text: 'INSERT INTO products VALUES($1, $2, $3, $4) RETURNING id',
-      values: [id, productName, price, owner],
+      text: 'INSERT INTO products VALUES($1, $2, $3, $4, $5) RETURNING id',
+      values: [id, productName, description, price, owner],
     };
 
     const result = await this._pool.query(query);
+
+    // if (result.owner !== owner) {
+    //   throw new AuthorizationError('Anda tidak berhak mengakses resource ini');
+    // }
 
     if (!result.rows[0].id) {
       throw new InvariantError('Produk gagal ditambahkan');
@@ -98,6 +102,24 @@ class ProductsService {
     if (product.owner !== owner) {
       throw new AuthorizationError('Anda tidak berhak mengakses resource ini');
     }
+  }
+
+  async editProductImage(id, img){
+    const query = {
+      text: 'UPDATE products SET img = $1 WHERE id = $2 RETURNING id',
+      values: [img, id],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rows.length) {
+      throw new NotFoundError('Gagal memperbarui album. Id tidak ditemukan');
+    }
+
+    return {
+      status: 'success',
+      message: 'Produk berhasil diperbarui',
+    };
   }
 }
 

@@ -6,11 +6,11 @@ exports.up = (pgm) => {
         type: 'VARCHAR(50)',
         primaryKey: true,
       },
-      user_id: {
+      product_id: {
         type: 'VARCHAR(50)',
         notNull: true,
       },
-      product_id: {
+      user_id: {
         type: 'VARCHAR(50)',
         notNull: true,
       },
@@ -18,10 +18,27 @@ exports.up = (pgm) => {
         type: 'INTEGER',
         notNull: true,
       },
-      // price: {
-      //   type: 'NUMERIC(10)',
-      //   notNull: true,
-      // }
+      price: {
+        type: 'NUMERIC(10)',
+        notNull: true,
+      },
+      payment: {
+        type: 'NUMERIC(10)',
+        notNull: true,
+        defaultValue: 0
+      },
+      remaining_payment: {
+        type: 'NUMERIC(10)',
+        notNull: true,
+      },
+      points: {
+        type: 'INTEGER',
+        defaultValue: 0,
+      },
+      status: {
+        type: 'VARCHAR(50)',
+        defaultValue: 'Belum Lunas',
+      },
     });
 
     pgm.addConstraint('purchase_details','fk_purchase_details.product_id_products.id','FOREIGN KEY(product_id) REFERENCES products(id) ON DELETE CASCADE');

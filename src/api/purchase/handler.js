@@ -1,51 +1,46 @@
 class PurchaseHandler {
-    constructor(service, validator) {
-      this._service = service;
-      // this._productsService = productsService;
-      // this._usersService = usersService;
+    constructor(purchaseService, productsService, usersService, validator) {
+      this._purchaseService = purchaseService;
+      this._productsService = productsService;
+      this._usersService = usersService;
       this._validator = validator;
   
       this.postPurchaseHandler = this.postPurchaseHandler.bind(this);
     }
   
     async postPurchaseHandler(request, h) {
-      // this._validator.validatePurchasePayload(request.payload);
-      //   const { userId, purchases } = request.payload;
-      
-      //   let totalPurchase = 0;
-      //   let totalPoints = 0;
-      
-      //   for (const purchase of purchases) {
-      //     const { productId, quantity, price } = purchase;
-      
-      //     totalPurchase += quantity * price;
-      
-      //     const purchasePoints = Math.floor(totalPurchase / 50000);
-      //     totalPoints += purchasePoints;
-      
-      //     await this._service.savePurchaseDetails(userId, productId, quantity, price);
-      //   }
-      
-      //   const transactionId = await this._service.saveTransactionDetails(userId, totalPurchase, totalPoints);
-      //   await this._service.updatePoints(userId, totalPoints);
-      
-      //   const response = h.response({
-      //     status: 'success',
-      //     message: 'Pembelian berhasil ditambahkan',
-      //     data: {
-      //       transactionId,
-      //       totalPurchase,
-      //       totalPoints,
-      //     },
-      //   });
-      //   response.code(201);
-      //   return response;
         this._validator.validatePurchasePayload(request.payload);
-        const { quantity, productId } = request.payload;
+        const { productId, quantity, paymentRemaining, points, status } = request.payload;
         const { id: credentialId } = request.auth.credentials;
+
+        const product = await this._productsService.getProductPrice(productId);
+        const { id: product_id, price } = product;
+
+        // const userPoints = await this._usersService.getUserById(credentialId);
+        // const { points: user_points } = userPoints;
+        // console.log(user_points);
+
+        const productPrice = price*quantity;
+
+        if (productPrice > 100000) {
+          
+          let totalPoints = 0;
+          const purchasePoints = Math.floor(productPrice / 50000);
+          totalPoints += purchasePoints;
+          await this._purchaseService.updatePoints(credentialId, purchasePoints);
+        }
+
+        let transactionAmount = points*20000;
+
+        if (points) {      
+          await this._purchaseService.updatePointsAfterRedeem(credentialId, points);
+          if (paymentRemaining === 0) {
+            status = "Lunas";
+          }
+        }
     
-        const purchaseId = await this._service.addPurchaseDetails({
-          userId: credentialId, productId, quantity,
+        const purchaseId = await this._purchaseService.addPurchaseDetails({
+          productId: product_id, userId: credentialId, quantity, price: productPrice, payment: transactionAmount, paymentRemaining, points 
         });
     
         const response = h.response({
@@ -58,6 +53,19 @@ class PurchaseHandler {
         response.code(201);
         return response;
       }
+
+      // async putPaymentPurchase(request) {
+      //   this._validator.validatePurchasePayload(request.payload);
+      //   const { name, year } = request.payload;
+      //   const { id } = request.params;
+    
+      //   await this._albumsService.editAlbumById(id, { name, year });
+    
+      //   return {
+      //     status: 'success',
+      //     message: 'Pembayaran Berhasil',
+      //   };
+      // }
   }
   
   module.exports = PurchaseHandler;
