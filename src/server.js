@@ -2,10 +2,14 @@ require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
+const Inert = require('@hapi/inert');
 const path = require('path');
+
+// const routes = require('./api/payment/routes');
 
 const ClientError = require('./exceptions/ClientError');
 const TokenManager = require('./tokenize/TokenManager');
+const snap = require('./config/midtrans');
 
 const admin = require('./api/admin');
 const AdminService = require('./services/AdminService');
@@ -27,6 +31,10 @@ const purchase = require('./api/purchase');
 const PurchaseService = require('./services/PurchaseService');
 const PurchaseValidator = require('./validator/purchase');
 
+const payment = require('./api/payment');
+const PaymentValidator = require('./validator/payment');
+// const MidtransService = require('./services/MidtransService');
+
 const StorageService = require('./services/StorageService');
 
 const init = async () => {
@@ -36,6 +44,7 @@ const init = async () => {
   const authenticationsService = new AuthenticationsService();
   const productsService = new ProductsService();
   const purchaseService = new PurchaseService();
+  // const midtransService = new MidtransService();
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -50,7 +59,10 @@ const init = async () => {
   await server.register([
     {
       plugin: Jwt,
-    }
+    },
+    {
+      plugin: Inert,
+    },
   ]);
 
   server.auth.strategy('shop_jwt', 'jwt', {
@@ -71,11 +83,11 @@ const init = async () => {
 
   await server.register([
     {
-        plugin: admin,
-        options: {
-          service: adminService,
-          validator: AdminValidator,
-        },
+      plugin: admin,
+      options: {
+        service: adminService,
+        validator: AdminValidator,
+      },
     },
     {
       plugin: users,
@@ -109,6 +121,15 @@ const init = async () => {
         productsService,
         usersService,
         validator: PurchaseValidator,
+      },
+    },
+    {
+      plugin: payment,
+      options: {
+        usersService,
+        purchaseService,
+        snap,
+        validator: PaymentValidator,
       },
     },
   ]);

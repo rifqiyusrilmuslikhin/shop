@@ -1,19 +1,22 @@
+/* eslint-disable camelcase */
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const InvariantError = require('../exceptions/InvariantError');
 const NotFoundError = require('../exceptions/NotFoundError');
-const AuthorizationError = require('../exceptions/AuthorizationError');
+// const AuthorizationError = require('../exceptions/AuthorizationError');
 
 class PurchaseService {
   constructor() {
     this._pool = new Pool();
   }
 
-  async addPurchaseDetails({productId, userId, quantity, price, payment, remainingPayment, points, status}) {
+  async addPurchaseDetails({
+    productId, userId, quantity, price, payment, remainingPayment, points, status 
+  }) {
     const id = `purchase-${nanoid(16)}`;
     const pointsValue = points || 0;
     const paymentValue = payment || 0;
-    const remaining_payment = remainingPayment || (price && price-paymentValue);
+    const remaining_payment = remainingPayment || (price && price - paymentValue);
     const purchaseStatus = status || 'Belum Lunas';
     const query = {
       text: 'INSERT INTO purchase_details VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id',
@@ -45,6 +48,20 @@ class PurchaseService {
     };
   
     await this._pool.query(query);
+  }
+
+  async getRemainingPayment(id) {
+    const query = {
+      text: 'SELECT id, remaining_payment FROM purchase_details WHERE id = $1',
+      values: [id],
+    };
+    const result = await this._pool.query(query);
+
+    if (!result.rows.length) {
+      throw new NotFoundError('Pembelian tidak ditemukan');
+    }
+
+    return result.rows[0];
   }
 }
 

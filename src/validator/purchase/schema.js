@@ -9,5 +9,10 @@ const PurchasePayloadSchema = Joi.object({
   status: Joi.string().default('Belum Lunas'),
   points: Joi.number().default(0)
 });
+
+const transactionTokenSchema = Joi.object({
+  orderId: Joi.string().required(),
+  grossAmount: Joi.number().required(),
+});
  
-module.exports = { PurchasePayloadSchema };
+module.exports = { PurchasePayloadSchema, transactionTokenSchema };

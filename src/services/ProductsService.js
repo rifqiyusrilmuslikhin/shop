@@ -9,7 +9,9 @@ class ProductsService {
     this._pool = new Pool();
   }
 
-  async addProduct({ productName, description, price, owner }) {
+  async addProduct({
+    productName, description, price, owner 
+  }) {
     const id = `product-${nanoid(16)}`;
 
     const query = {
@@ -37,7 +39,7 @@ class ProductsService {
 
   async getProductById(id) {
     const query = {
-      text: `SELECT products.id, products.product_name, products.price FROM products WHERE products.id = $1`,
+      text: 'SELECT products.id, products.product_name, products.price FROM products WHERE products.id = $1',
       values: [id],
     };
     const result = await this._pool.query(query);
@@ -51,7 +53,7 @@ class ProductsService {
 
   async getProductPrice(id) {
     const query = {
-      text: `SELECT id, price FROM products WHERE id = $1`,
+      text: 'SELECT id, price FROM products WHERE id = $1',
       values: [id],
     };
     const result = await this._pool.query(query);
@@ -113,7 +115,7 @@ class ProductsService {
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {
-      throw new NotFoundError('Gagal memperbarui album. Id tidak ditemukan');
+      throw new NotFoundError('Gagal memperbarui produk. Id tidak ditemukan');
     }
 
     return {
