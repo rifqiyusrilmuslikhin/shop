@@ -5,8 +5,6 @@ const Jwt = require('@hapi/jwt');
 const Inert = require('@hapi/inert');
 const path = require('path');
 
-// const routes = require('./api/payment/routes');
-
 const ClientError = require('./exceptions/ClientError');
 const TokenManager = require('./tokenize/TokenManager');
 const snap = require('./config/midtrans');
@@ -33,18 +31,23 @@ const PurchaseValidator = require('./validator/purchase');
 
 const payment = require('./api/payment');
 const PaymentValidator = require('./validator/payment');
-// const MidtransService = require('./services/MidtransService');
+
+const shipping = require('./api/shipping');
+const ShippingService = require('./services/ShippingService');
 
 const StorageService = require('./services/StorageService');
 
+const CacheService = require('./services/cacheService');
+
 const init = async () => {
   const storageService = new StorageService(path.resolve(__dirname, 'api/uploads/file/images'));
+  const cacheService = new CacheService();
   const adminService = new AdminService();
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
   const productsService = new ProductsService();
   const purchaseService = new PurchaseService();
-  // const midtransService = new MidtransService();
+  const shippingService = new ShippingService(cacheService);
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -76,10 +79,26 @@ const init = async () => {
     validate: (artifacts) => ({
       isValid: true,
       credentials: {
-        id: artifacts.decoded.payload.id,
+        id: artifacts.decoded.payload.userId,
       },
     }),
   });
+
+  // server.auth.strategy('admin_jwt', 'jwt', {
+  //   keys: process.env.ACCESS_TOKEN_KEY,
+  //   verify: {
+  //     aud: false,
+  //     iss: false,
+  //     sub: false,
+  //     maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+  //   },
+  //   validate: (artifacts) => ({
+  //     isValid: true,
+  //     credentials: {
+  //       id: artifacts.decoded.payload.adminId,
+  //     },
+  //   }),
+  // });
 
   await server.register([
     {
@@ -131,6 +150,12 @@ const init = async () => {
         snap,
         validator: PaymentValidator,
       },
+    },
+    {
+      plugin: shipping,
+      options: {
+        shippingService
+      }
     },
   ]);
 

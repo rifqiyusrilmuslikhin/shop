@@ -6,6 +6,7 @@ class ProductHandler {
   
     this.postProductHandler = this.postProductHandler.bind(this);
     this.getAllProductHandler = this.getAllProductHandler.bind(this);
+    this.getProductByIdHandler = this.getProductByIdHandler.bind(this);
     this.deleteProductByIdHandler = this.deleteProductByIdHandler.bind(this);
     this.putProductByIdHandler = this.putProductByIdHandler.bind(this);
     this.postUploadImageHandler = this.postUploadImageHandler.bind(this);
@@ -41,15 +42,28 @@ class ProductHandler {
     };
   }
 
+  async getProductByIdHandler(request) {
+    const { id } = request.params;
+
+    const product = await this._productsService.getProductById(id);
+
+    return {
+      status: 'success',
+      data: {
+        product,
+      },
+    };
+  }
+
   async putProductByIdHandler(request) {
     this._validator.validateProductPayload(request.payload);
     const { productName, price } = request.payload;
     const { id } = request.params;
     const { id: credentialId } = request.auth.credentials;
     
-    await this._service.verifyProductOwner(id, credentialId);
+    await this._productsService.verifyProductOwner(id, credentialId);
     
-    await this._service.editProductById(id, { productName, price });
+    await this._productsService.editProductById(id, { productName, price });
     
     return {
       status: 'success',

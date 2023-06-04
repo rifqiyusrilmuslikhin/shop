@@ -39,7 +39,7 @@ class ProductsService {
 
   async getProductById(id) {
     const query = {
-      text: 'SELECT products.id, products.product_name, products.price FROM products WHERE products.id = $1',
+      text: 'SELECT * FROM products WHERE products.id = $1',
       values: [id],
     };
     const result = await this._pool.query(query);

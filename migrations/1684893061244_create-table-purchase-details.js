@@ -33,11 +33,12 @@ exports.up = (pgm) => {
     },
     points: {
       type: 'INTEGER',
+      notNull: true,
       defaultValue: 0,
     },
     status: {
       type: 'VARCHAR(50)',
-      defaultValue: 'Belum Lunas',
+      defaultValue: 'Pending',
     },
   });
 

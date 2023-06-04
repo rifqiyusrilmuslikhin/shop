@@ -8,6 +8,17 @@ const routes = (handler) => [
     method: 'GET',
     path: '/api/users',
     handler: handler.getAllUserHandler,
+    options: {
+      auth: 'shop_jwt',
+    },
+  },
+  {
+    method: 'GET',
+    path: '/api/users/{id}',
+    handler: handler.getUserByIdHandler,
+    options: {
+      auth: 'shop_jwt',
+    },
   },
 ];
    

@@ -7,11 +7,27 @@ const routes = (handler) => [
       auth: 'shop_jwt',
     },
   },
-  // {
-  //   method: 'POST',
-  //   path: '/transaction-token',
-  //   handler: handler.getTransactionTokenHandler,
-  // },
+  {
+    method: 'GET',
+    path: '/api/purchase',
+    handler: handler.getAllPurchaseHandler,
+    options: {
+      auth: 'shop_jwt',
+    },
+  },
+  {
+    method: 'GET',
+    path: '/api/purchase/{id}',
+    handler: handler.getPurchaseByUserHandler,
+    options: {
+      auth: 'shop_jwt',
+    },
+  },
+  {
+    method: 'GET',
+    path: '/api/admin/purchase/{id}',
+    handler: handler.getPurchaseByIdHandler,
+  },
 ];
   
 module.exports = routes;

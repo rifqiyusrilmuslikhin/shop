@@ -16,7 +16,7 @@ class PaymentHandler {
     const { id: credentialId } = request.auth.credentials;
     const user = await this._usersService.getUserById(credentialId);
 
-    const purchase = await this._purchaseService.getRemainingPayment(purchaseId);
+    const purchase = await this._purchaseService.getDetailPurchase(purchaseId);
 
     const transactionDetails = {
       transaction_details: {
@@ -31,7 +31,8 @@ class PaymentHandler {
         last_name: user.fullname,
         email: user.email,
         phone: user.phone,
-      },
+        address: user.address
+      }
     };
 
     const snapToken = await this._snap.createTransactionToken(transactionDetails);

@@ -16,10 +16,10 @@ class AuthenticationsHandler {
     this._validator.validatePostAuthenticationPayload(request.payload);
   
     const { username, password } = request.payload;
-    const id = await this._adminService.verifyAdminCredential(username, password);
+    const adminId = await this._adminService.verifyAdminCredential(username, password);
   
-    const accessToken = this._tokenManager.generateAccessToken({ id });
-    const refreshToken = this._tokenManager.generateRefreshToken({ id });
+    const accessToken = this._tokenManager.generateAccessToken({ adminId });
+    const refreshToken = this._tokenManager.generateRefreshToken({ adminId });
   
     await this._authenticationsService.addRefreshToken(refreshToken);
   
@@ -39,10 +39,10 @@ class AuthenticationsHandler {
     this._validator.validatePostAuthenticationPayload(request.payload);
     
     const { username, password } = request.payload;
-    const id = await this._usersService.verifyUserCredential(username, password);
+    const userId = await this._usersService.verifyUserCredential(username, password);
     
-    const accessToken = this._tokenManager.generateAccessToken({ id });
-    const refreshToken = this._tokenManager.generateRefreshToken({ id });
+    const accessToken = this._tokenManager.generateAccessToken({ userId });
+    const refreshToken = this._tokenManager.generateRefreshToken({ userId });
     
     await this._authenticationsService.addRefreshToken(refreshToken);
     

@@ -5,6 +5,7 @@ class UsersHandler {
    
     this.postUserHandler = this.postUserHandler.bind(this);
     this.getAllUserHandler = this.getAllUserHandler.bind(this);
+    this.getUserByIdHandler = this.getUserByIdHandler.bind(this);
   }
    
   async postUserHandler(request, h) {
@@ -34,6 +35,19 @@ class UsersHandler {
       status: 'success',
       data: {
         users,
+      },
+    };
+  }
+
+  async getUserByIdHandler(request) {
+    const { id: credentialId } = request.auth.credentials;
+
+    const user = await this._service.getUserById(credentialId);
+
+    return {
+      status: 'success',
+      data: {
+        user
       },
     };
   }

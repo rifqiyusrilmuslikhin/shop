@@ -7,7 +7,9 @@ class PurchaseHandler {
     this._validator = validator;
   
     this.postPurchaseHandler = this.postPurchaseHandler.bind(this);
-    // this.generateSnapToken = this.generateSnapToken.bind(this);
+    this.getAllPurchaseHandler = this.getAllPurchaseHandler.bind(this);
+    this.getPurchaseByUserHandler = this.getPurchaseByUserHandler.bind(this);
+    this.getPurchaseByIdHandler = this.getPurchaseByIdHandler.bind(this);
   }
   
   async postPurchaseHandler(request, h) {
@@ -24,23 +26,17 @@ class PurchaseHandler {
 
     if (productPrice > 100000) {
       const purchasePoints = Math.floor(productPrice / 100000);
-      console.log(purchasePoints);
       await this._purchaseService.updatePoints(credentialId, purchasePoints);
     }
 
     const transactionAmount = points * 20000;
 
-    let status;
-
     if (points) {      
       await this._purchaseService.updatePointsAfterRedeem(credentialId, points);
-      if (paymentRemaining === 0) {
-        status = 'Lunas';
-      }
     }
     
     const purchaseId = await this._purchaseService.addPurchaseDetails({
-      productId: product_id, userId: credentialId, quantity, price: productPrice, payment: transactionAmount, paymentRemaining, points, status, 
+      productId: product_id, userId: credentialId, quantity, price: productPrice, payment: transactionAmount, paymentRemaining, points, 
     });
     
     const response = h.response({
@@ -54,27 +50,42 @@ class PurchaseHandler {
     return response;
   }
 
-  //     async generateSnapToken(request, h) {
-  //     const transactionDetails = {
-  //       transaction_details: {
-  //         order_id: 'oreddesdr31',
-  //         gross_amount: 10000,
-  //       },
-  //       credit_card: {
-  //         secure: true,
-  //       },
-  //       customer_details: {
-  //         first_name: 'John',
-  //         last_name: 'Doe',
-  //         email: 'johndoe@example.com',
-  //         phone: '081234567890',
-  //       },
-  //     };
+  async getAllPurchaseHandler() {
+    const purchases = await this._purchaseService.getAllPurchase();
+    return {
+      status: 'success',
+      data: {
+        purchases,
+      },
+    };
+  }
 
-  //     const snapToken = await snap.createTransactionToken(transactionDetails);
+  async getPurchaseByUserHandler(request) {
+    const { id } = request.params;
+    const { id: credentialId } = request.auth.credentials;
 
-  //     return { snapToken };
-  // };
+    const purchase = await this._purchaseService.getPurchaseByUser(id, credentialId);
+
+    return {
+      status: 'success',
+      data: {
+        purchase
+      },
+    };
+  }
+
+  async getPurchaseByIdHandler(request) {
+    const { id } = request.params;
+
+    const purchase = await this._purchaseService.getPurchaseById(id);
+
+    return {
+      status: 'success',
+      data: {
+        purchase
+      },
+    };
+  }
 }
   
 module.exports = PurchaseHandler;

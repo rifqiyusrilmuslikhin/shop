@@ -15,6 +15,14 @@ const routes = (handler) => [
     handler: handler.getAllProductHandler,
   },
   {
+    method: 'GET',
+    path: '/api/products/{id}',
+    handler: handler.getProductByIdHandler,
+    // options: {
+    //   auth: 'shop_jwt',
+    // },
+  },
+  {
     method: 'PUT',
     path: '/api/products/{id}',
     handler: handler.putProductByIdHandler,
