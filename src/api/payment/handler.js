@@ -1,9 +1,9 @@
 const axios = require('axios');
 
 class PaymentHandler {
-  constructor(usersService, purchaseService, snap, validator) {
+  constructor(usersService, ordersService, snap, validator) {
     this._usersService = usersService;
-    this._purchaseService = purchaseService;
+    this._ordersService = ordersService;
     this._snap = snap;
     this._validator = validator;
  
@@ -12,16 +12,16 @@ class PaymentHandler {
   }
 
   async generateSnapToken(request) {
-    const { purchaseId } = request.params;
+    const { orderId } = request.params;
     const { id: credentialId } = request.auth.credentials;
     const user = await this._usersService.getUserById(credentialId);
 
-    const purchase = await this._purchaseService.getDetailPurchase(purchaseId);
+    const order = await this._ordersService.getDetailOrder(orderId);
 
     const transactionDetails = {
       transaction_details: {
-        order_id: purchase.id,
-        gross_amount: purchase.remaining_payment,
+        order_id: order.id,
+        gross_amount: order.remaining_payment,
       },
       credit_card: {
         secure: true,

@@ -18,6 +18,19 @@ exports.up = (pgm) => {
       type: 'NUMERIC(10)',
       notNull: true,
     },
+    discount: {
+      type: 'NUMERIC(5)',
+      defaultValue: 0,
+    },
+    discount_price: {
+      type: 'NUMERIC(10)',
+      notNull: true,
+      defaultValue: 0
+    },
+    stock: {
+      type: 'NUMERIC(10)',
+      notNull: true
+    },
     owner: {
       type: 'VARCHAR(50)',
       notNull: true,

@@ -16,6 +16,14 @@ const routes = (handler) => [
     // },
   },
   {
+    method: 'GET',
+    path: '/api/cities/{provinceId}',
+    handler: handler.getCitiesByIdHandler,
+    // options: {
+    //   auth: 'shop_jwt',
+    // },
+  },
+  {
     method: 'POST',
     path: '/api/shipping-cost',
     handler: handler.postShippingCostHandler,

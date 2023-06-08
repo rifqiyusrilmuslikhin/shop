@@ -1,3 +1,5 @@
+const verifyAdminRole = require('../../middleware/verifyAdminRole');
+
 const routes = (handler) => [
   {
     method: 'POST',
@@ -7,9 +9,12 @@ const routes = (handler) => [
   {
     method: 'GET',
     path: '/api/users',
-    handler: handler.getAllUserHandler,
+    handler: handler.getUsersHandler,
     options: {
       auth: 'shop_jwt',
+      pre: [
+        { method: verifyAdminRole }
+      ]
     },
   },
   {
@@ -18,7 +23,25 @@ const routes = (handler) => [
     handler: handler.getUserByIdHandler,
     options: {
       auth: 'shop_jwt',
+      pre: [
+        { method: verifyAdminRole }
+      ]
     },
+  },
+  {
+    method: 'GET',
+    path: '/activate',
+    handler: handler.activateAccountHandler,
+  },
+  {
+    method: 'POST',
+    path: '/api/users/forgot-password',
+    handler: handler.forgotPasswordHandler,
+  },
+  {
+    method: 'POST',
+    path: '/reset-password',
+    handler: handler.resetPasswordHandler,
   },
 ];
    

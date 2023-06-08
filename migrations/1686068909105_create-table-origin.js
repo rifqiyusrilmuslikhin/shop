@@ -1,26 +1,22 @@
 /* eslint-disable camelcase */
 
 exports.up = (pgm) => {
-  pgm.createTable('admin', {
+  pgm.createTable('origin', {
     id: {
       type: 'VARCHAR(50)',
       primaryKey: true,
     },
-    username: {
+    province_id: {
       type: 'VARCHAR(50)',
-      unique: true,
       notNull: true,
     },
-    password: {
-      type: 'TEXT',
+    city_id: {
+      type: 'VARCHAR(50)',
       notNull: true,
-    },
-    role: {
-      type: 'VARCHAR(50)'
     }
   });
 };
    
 exports.down = (pgm) => {
-  pgm.dropTable('admin');
+  pgm.dropTable('origin');
 };

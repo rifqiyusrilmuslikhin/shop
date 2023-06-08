@@ -52,6 +52,30 @@ class ShippingService {
       };
     }
   }
+
+  async getCityById(provinceId) {
+    const key = `cities:${provinceId}`;
+    try {
+      const result = await this._cacheService.get(key);
+      return { data: JSON.parse(result), isCache: true };
+    } catch (error) {
+      const response = await axios.get(`${process.env.RAJAONGKIR_BASEURL}/starter/city`, {
+        headers: {
+          key: process.env.RAJAONGKIR_API_KEY,
+        },
+        params: {
+          province: provinceId,
+        },
+      });
+  
+      await this._cacheService.set(key, JSON.stringify(response.data));
+  
+      return { 
+        data: response.data, 
+        isCache: false 
+      };
+    }
+  }
 }
 
 module.exports = ShippingService;

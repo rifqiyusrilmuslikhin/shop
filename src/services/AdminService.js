@@ -6,24 +6,24 @@ const AuthenticationError = require('../exceptions/AuthenticationError');
 const NotFoundError = require('../exceptions/NotFoundError');
 
 class AdminService {
-  constructor(rolesService) {
+  constructor() {
     this._pool = new Pool();
-    this._rolesService = rolesService;
   }
 
   async addAdmin({ username, password }) {
     await this.verifyNewUsername(username);
     const id = `admin-${nanoid(16)}`;
     const hashedPassword = await bcrypt.hash(password, 10);
+    const role = 'admin';
     const query = {
-      text: 'INSERT INTO admin VALUES($1, $2, $3) RETURNING id',
-      values: [id, username, hashedPassword],
+      text: 'INSERT INTO admin VALUES($1, $2, $3, $4) RETURNING id',
+      values: [id, username, hashedPassword, role],
     };
 
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {
-      throw new InvariantError('Admin gagal ditambahkan');
+      throw new InvariantError('admin gagal ditambahkan');
     }
     return result.rows[0].id;
   }
@@ -63,17 +63,17 @@ class AdminService {
 
   async verifyAdminCredential(username, password) {
     const query = {
-      text: 'SELECT id, password FROM admin WHERE username = $1',
+      text: 'SELECT id, password, role FROM admin WHERE username = $1',
       values: [username],
     };
 
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {
-      throw new AuthenticationError('Kredensial yang Anda berikan salah');
+      throw new NotFoundError('User tidak ditemukan');
     }
 
-    const { id, password: hashedPassword } = result.rows[0];
+    const { id, password: hashedPassword, role } = result.rows[0];
 
     const match = await bcrypt.compare(password, hashedPassword);
 
@@ -81,7 +81,7 @@ class AdminService {
       throw new AuthenticationError('Kredensial yang Anda berikan salah');
     }
 
-    return id;
+    return { id, role };
   }
 }
 

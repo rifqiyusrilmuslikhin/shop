@@ -10,20 +10,18 @@ class ProductsService {
   }
 
   async addProduct({
-    productName, description, price, owner 
+    productName, description, price, discount, stock, owner 
   }) {
     const id = `product-${nanoid(16)}`;
+    const discountProduct = discount || 0;
+    const discountProductPrice = price - ((discount / 100) * price) || price;
 
     const query = {
-      text: 'INSERT INTO products VALUES($1, $2, $3, $4, $5) RETURNING id',
-      values: [id, productName, description, price, owner],
+      text: 'INSERT INTO products VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
+      values: [id, productName, description, price, discountProduct, discountProductPrice, stock, owner],
     };
 
     const result = await this._pool.query(query);
-
-    // if (result.owner !== owner) {
-    //   throw new AuthorizationError('Anda tidak berhak mengakses resource ini');
-    // }
 
     if (!result.rows[0].id) {
       throw new InvariantError('Produk gagal ditambahkan');
@@ -39,7 +37,7 @@ class ProductsService {
 
   async getProductById(id) {
     const query = {
-      text: 'SELECT * FROM products WHERE products.id = $1',
+      text: 'SELECT * FROM products WHERE id = $1',
       values: [id],
     };
     const result = await this._pool.query(query);
@@ -65,10 +63,14 @@ class ProductsService {
     return result.rows[0];
   }
 
-  async editProductById(id, { productName, price }) {
+  async editProductById(id, {
+    productName, description, price, discount, stock 
+  }) {
+    const discountProduct = discount || 0;
+    const discountProductPrice = price - ((discount / 100) * price) || price;
     const query = {
-      text: 'UPDATE products SET product_name = $1, price = $2 WHERE id = $3 RETURNING id',
-      values: [productName, price, id],
+      text: 'UPDATE products SET product_name = $1, description = $2, price = $3, discount = $4, discount_price = $5, stock = $6 WHERE id = $6 RETURNING id',
+      values: [productName, description, price, discountProduct, discountProductPrice, stock, id],
     };
 
     const result = await this._pool.query(query);
@@ -122,6 +124,15 @@ class ProductsService {
       status: 'success',
       message: 'Produk berhasil diperbarui',
     };
+  }
+
+  async updateStockProductAfterOrder(productId, quantity) {
+    const query = {
+      text: 'UPDATE products SET stock = stock - $1 WHERE id = $2',
+      values: [quantity, productId],
+    };
+  
+    await this._pool.query(query);
   }
 }
 

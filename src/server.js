@@ -25,9 +25,9 @@ const products = require('./api/products');
 const ProductsService = require('./services/ProductsService');
 const ProductsValidator = require('./validator/products');
 
-const purchase = require('./api/purchase');
-const PurchaseService = require('./services/PurchaseService');
-const PurchaseValidator = require('./validator/purchase');
+const orders = require('./api/orders');
+const OrdersService = require('./services/OrdersService');
+const OrdersValidator = require('./validator/orders');
 
 const payment = require('./api/payment');
 const PaymentValidator = require('./validator/payment');
@@ -37,7 +37,7 @@ const ShippingService = require('./services/ShippingService');
 
 const StorageService = require('./services/StorageService');
 
-const CacheService = require('./services/cacheService');
+const CacheService = require('./services/CacheService');
 
 const init = async () => {
   const storageService = new StorageService(path.resolve(__dirname, 'api/uploads/file/images'));
@@ -46,7 +46,7 @@ const init = async () => {
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
   const productsService = new ProductsService();
-  const purchaseService = new PurchaseService();
+  const ordersService = new OrdersService(productsService, usersService);
   const shippingService = new ShippingService(cacheService);
 
   const server = Hapi.server({
@@ -76,29 +76,23 @@ const init = async () => {
       sub: false,
       maxAgeSec: process.env.ACCESS_TOKEN_AGE,
     },
-    validate: (artifacts) => ({
-      isValid: true,
-      credentials: {
-        id: artifacts.decoded.payload.userId,
-      },
-    }),
+    validate: (artifacts) => {
+      const decodedToken = artifacts.decoded.payload;
+      const { role } = decodedToken;
+  
+      if (role !== 'user' && role !== 'admin') {
+        return { isValid: false };
+      }
+  
+      return {
+        isValid: true,
+        credentials: {
+          id: decodedToken.id,
+          role: decodedToken.role,
+        },
+      };
+    },
   });
-
-  // server.auth.strategy('admin_jwt', 'jwt', {
-  //   keys: process.env.ACCESS_TOKEN_KEY,
-  //   verify: {
-  //     aud: false,
-  //     iss: false,
-  //     sub: false,
-  //     maxAgeSec: process.env.ACCESS_TOKEN_AGE,
-  //   },
-  //   validate: (artifacts) => ({
-  //     isValid: true,
-  //     credentials: {
-  //       id: artifacts.decoded.payload.adminId,
-  //     },
-  //   }),
-  // });
 
   await server.register([
     {
@@ -134,19 +128,19 @@ const init = async () => {
       },
     },
     {
-      plugin: purchase,
+      plugin: orders,
       options: {
-        purchaseService,
+        ordersService,
         productsService,
         usersService,
-        validator: PurchaseValidator,
+        validator: OrdersValidator,
       },
     },
     {
       plugin: payment,
       options: {
         usersService,
-        purchaseService,
+        ordersService,
         snap,
         validator: PaymentValidator,
       },

@@ -7,6 +7,7 @@ class ShippingHandler {
 
     this.getProvincesHandler = this.getProvincesHandler.bind(this);
     this.getCitiesHandler = this.getCitiesHandler.bind(this);
+    this.getCitiesByIdHandler = this.getCitiesByIdHandler.bind(this);
     this.postShippingCostHandler = this.postShippingCostHandler.bind(this);
   }
 
@@ -36,22 +37,30 @@ class ShippingHandler {
     return response;
   }
 
+  async getCitiesByIdHandler(request, h) {
+    const { provinceId } = request.params;
+    const { data, isCache } = await this._shippingService.getCityById(provinceId);
+
+    const response = h.response({
+      status: 'success',
+      data: {
+        data,
+      },
+    });
+    response.header('X-Data-Source', isCache ? 'cache' : 'db');
+    return response;
+  }
+
+  // eslint-disable-next-line consistent-return
   async postShippingCostHandler(request) {
-    const { weight, courier } = request.payload;
-
-    const originDetails = {
-      city_id: '409'
-    };
-
-    const destinationDetails = {
-      city_id: '418'
-    };
-  
+    const {
+      origin, destination, weight, courier 
+    } = request.payload;
     const response = await axios.post(
       `${process.env.RAJAONGKIR_BASEURL}/starter/cost`,
       {
-        origin: originDetails.city_id,
-        destination: destinationDetails.city_id,
+        origin,
+        destination,
         weight,
         courier,
       },

@@ -16,10 +16,11 @@ class AuthenticationsHandler {
     this._validator.validatePostAuthenticationPayload(request.payload);
   
     const { username, password } = request.payload;
-    const adminId = await this._adminService.verifyAdminCredential(username, password);
   
-    const accessToken = this._tokenManager.generateAccessToken({ adminId });
-    const refreshToken = this._tokenManager.generateRefreshToken({ adminId });
+    const { id, role } = await this._adminService.verifyAdminCredential(username, password);
+  
+    const accessToken = this._tokenManager.generateAccessToken({ id, role });
+    const refreshToken = this._tokenManager.generateRefreshToken({ id, role });
   
     await this._authenticationsService.addRefreshToken(refreshToken);
   
@@ -29,6 +30,7 @@ class AuthenticationsHandler {
       data: {
         accessToken,
         refreshToken,
+        role,
       },
     });
     response.code(201);
@@ -37,21 +39,23 @@ class AuthenticationsHandler {
 
   async postUserAuthenticationHandler(request, h) {
     this._validator.validatePostAuthenticationPayload(request.payload);
-    
+  
     const { username, password } = request.payload;
-    const userId = await this._usersService.verifyUserCredential(username, password);
-    
-    const accessToken = this._tokenManager.generateAccessToken({ userId });
-    const refreshToken = this._tokenManager.generateRefreshToken({ userId });
-    
+  
+    const { id, role } = await this._usersService.verifyUserCredential(username, password);
+  
+    const accessToken = this._tokenManager.generateAccessToken({ id, role });
+    const refreshToken = this._tokenManager.generateRefreshToken({ id, role });
+  
     await this._authenticationsService.addRefreshToken(refreshToken);
-    
+  
     const response = h.response({
       status: 'success',
       message: 'Authentication berhasil ditambahkan',
       data: {
         accessToken,
         refreshToken,
+        role,
       },
     });
     response.code(201);

@@ -2,8 +2,19 @@ const Joi = require('joi');
  
 const UserPayloadSchema = Joi.object({
   username: Joi.string().required(),
-  password: Joi.string().required(),
-  fullname: Joi.string().required(),
+  password: Joi.string()
+    .min(8)
+    .pattern(/^(?=.*[a-zA-Z])(?=.*[0-9])/)
+    .required()
+    .messages({
+      'string.base': 'Password harus berupa teks',
+      'string.empty': 'Password tidak boleh kosong',
+      'string.min': 'Password minimal terdiri dari 8 karakter',
+      'string.pattern.base': 'Password harus terdiri dari kombinasi angka dan huruf',
+      'any.required': 'Password harus diisi',
+    }),
+  firstName: Joi.string().required(),
+  lastName: Joi.string().required(),
   email: Joi.string()
     .email({ tlds: { allow: false } })
     .required()
@@ -27,7 +38,19 @@ const UserPayloadSchema = Joi.object({
       'any.required': 'Nomor telepon harus diisi',
     }),
   address: Joi.string().required(),
-  points: Joi.number().default(0)
+  points: Joi.number().default(0),
+  activationToken: Joi.string(),
+  isActive: Joi.string(),
+  role: Joi.string(),
 });
 
-module.exports = { UserPayloadSchema };
+const ForgotPasswordSchema = Joi.object({
+  email: Joi.string().email().required(),
+});
+
+const ResetPasswordSchema = Joi.object({
+  token: Joi.string().required(),
+  password: Joi.string().required(),
+});
+
+module.exports = { UserPayloadSchema, ForgotPasswordSchema, ResetPasswordSchema };

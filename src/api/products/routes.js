@@ -1,4 +1,5 @@
 const path = require('path');
+const verifyAdminRole = require('../../middleware/verifyAdminRole');
 
 const routes = (handler) => [
   {
@@ -7,6 +8,9 @@ const routes = (handler) => [
     handler: handler.postProductHandler,
     options: {
       auth: 'shop_jwt',
+      pre: [
+        { method: verifyAdminRole }
+      ]
     },
   },
   {
@@ -18,9 +22,12 @@ const routes = (handler) => [
     method: 'GET',
     path: '/api/products/{id}',
     handler: handler.getProductByIdHandler,
-    // options: {
-    //   auth: 'shop_jwt',
-    // },
+    options: {
+      auth: 'shop_jwt',
+      pre: [
+        { method: verifyAdminRole }
+      ]
+    },
   },
   {
     method: 'PUT',
@@ -28,6 +35,9 @@ const routes = (handler) => [
     handler: handler.putProductByIdHandler,
     options: {
       auth: 'shop_jwt',
+      pre: [
+        { method: verifyAdminRole }
+      ]
     },
   },
   {
@@ -36,6 +46,9 @@ const routes = (handler) => [
     handler: handler.deleteProductByIdHandler,
     options: {
       auth: 'shop_jwt',
+      pre: [
+        { method: verifyAdminRole }
+      ]
     },
   },
   {
@@ -44,6 +57,9 @@ const routes = (handler) => [
     handler: handler.postUploadImageHandler,
     options: {
       auth: 'shop_jwt',
+      pre: [
+        { method: verifyAdminRole }
+      ],
       payload: {
         allow: 'multipart/form-data',
         multipart: true,

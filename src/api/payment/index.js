@@ -5,9 +5,9 @@ module.exports = {
   name: 'payment',
   version: '1.0.0',
   register: async (server, {
-    usersService, purchaseService, snap, validator 
+    usersService, ordersService, snap, validator 
   }) => {
-    const paymentHandler = new PaymentHandler(usersService, purchaseService, snap, validator);
+    const paymentHandler = new PaymentHandler(usersService, ordersService, snap, validator);
     server.route(routes(paymentHandler));
   },
 };

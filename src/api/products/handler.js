@@ -14,11 +14,13 @@ class ProductHandler {
   
   async postProductHandler(request, h) {
     this._validator.validateProductPayload(request.payload);
-    const { productName, description, price } = request.payload;
+    const {
+      productName, description, price, discount, stock 
+    } = request.payload;
     const { id: credentialId } = request.auth.credentials;
   
     const productId = await this._productsService.addProduct({
-      productName, description, price, owner: credentialId,
+      productName, description, price, discount, stock, owner: credentialId,
     });
   
     const response = h.response({
@@ -57,13 +59,17 @@ class ProductHandler {
 
   async putProductByIdHandler(request) {
     this._validator.validateProductPayload(request.payload);
-    const { productName, price } = request.payload;
+    const {
+      productName, description, price, discount, stock 
+    } = request.payload;
     const { id } = request.params;
     const { id: credentialId } = request.auth.credentials;
     
     await this._productsService.verifyProductOwner(id, credentialId);
     
-    await this._productsService.editProductById(id, { productName, price });
+    await this._productsService.editProductById(id, {
+      productName, description, price, discount, stock 
+    });
     
     return {
       status: 'success',

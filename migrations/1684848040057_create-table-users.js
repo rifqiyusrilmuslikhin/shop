@@ -15,12 +15,17 @@ exports.up = (pgm) => {
       type: 'TEXT',
       notNull: true,
     },
-    fullname: {
-      type: 'TEXT',
+    first_name: {
+      type: 'VARCHAR(255)',
+      notNull: true,
+    },
+    last_name: {
+      type: 'VARCHAR(255)',
       notNull: true,
     },
     email: {
       type: 'TEXT',
+      unique: true,
       notNull: true,
     },
     phone: {
@@ -28,12 +33,24 @@ exports.up = (pgm) => {
       notNull: true,
     },
     address: {
-      type: 'TEXT',
+      type: 'VARCHAR(255)',
       notNull: true,
     },
     points: {
       type: 'INTEGER',
       defaultValue: 0,
+    },
+    activation_token: {
+      type: 'VARCHAR(255)',
+    },
+    is_active: {
+      type: 'VARCHAR(255)',
+    },
+    role: {
+      type: 'VARCHAR(50)'
+    },
+    reset_token: {
+      type: 'VARCHAR(255)',
     },
   });
 };
