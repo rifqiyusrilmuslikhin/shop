@@ -35,7 +35,7 @@ class AdminService {
 
   async getAdminById(adminId) {
     const query = {
-      text: 'SELECT id, username FROM admin WHERE id = $1',
+      text: 'SELECT * FROM admin WHERE id = $1',
       values: [adminId],
     };
 
@@ -46,6 +46,25 @@ class AdminService {
     }
 
     return result.rows[0];
+  }
+
+  async editAdmin(id, { username, password }) {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const query = {
+      text: 'UPDATE admin SET username = $1, password = $2 WHERE id = $3 RETURNING id',
+      values: [username, hashedPassword, id],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rows.length) {
+      throw new NotFoundError('Gagal memperbarui admin. Id tidak ditemukan');
+    }
+  }
+
+  async getAllOrigin() {
+    const result = await this._pool.query('SELECT * FROM origin');
+    return result.rows;
   }
 
   async verifyNewUsername(username) {

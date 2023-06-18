@@ -30,8 +30,13 @@ class ProductsService {
     return result.rows[0].id;
   }
 
-  async getAllProduct() {
-    const result = await this._pool.query('SELECT * FROM products');
+  async getAllProduct({ productName = '', description = '' }) {
+    const query = {
+      text: 'SELECT * FROM products WHERE product_name ILIKE $1 AND description ILIKE $2',
+      values: [`%${productName}%`, `%${description}%`],
+    };
+
+    const result = await this._pool.query(query);
     return result.rows;
   }
 
@@ -69,7 +74,7 @@ class ProductsService {
     const discountProduct = discount || 0;
     const discountProductPrice = price - ((discount / 100) * price) || price;
     const query = {
-      text: 'UPDATE products SET product_name = $1, description = $2, price = $3, discount = $4, discount_price = $5, stock = $6 WHERE id = $6 RETURNING id',
+      text: 'UPDATE products SET product_name = $1, description = $2, price = $3, discount = $4, discount_price = $5, stock = $6 WHERE id = $7 RETURNING id',
       values: [productName, description, price, discountProduct, discountProductPrice, stock, id],
     };
 

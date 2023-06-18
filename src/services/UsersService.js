@@ -45,7 +45,7 @@ class UsersService {
       from: process.env.SMTP_EMAIL,
       to: email,
       subject: 'Account Activation',
-      text: `Click the following link to activate your account: http://localhost:4001/activate?token=${activationToken}`,
+      text: `Click the following link to activate your account: http://localhost:3000/activate?token=${activationToken}`,
     };
   
     await transporter.sendMail(mailOptions);
@@ -76,7 +76,7 @@ class UsersService {
     const result = await this._pool.query(query);
 
     if (result.rowCount === 0) {
-      throw new NotFoundError('Gagal memperbarui password. token tidak ditemukan');
+      throw new NotFoundError('Gagal memperbarui password. email tidak ditemukan');
     }
 
     const transporter = nodemailer.createTransport({
@@ -91,7 +91,7 @@ class UsersService {
       from: process.env.SMTP_EMAIL,
       to: email,
       subject: 'Reset Password',
-      text: `Reset your password by clicking the following link: http://localhost:4001/reset-password?token=${token}`,
+      text: `Reset your password by clicking the following link: http://localhost:3000/reset-password?token=${token}`,
     };
   
     await transporter.sendMail(mailOptions);

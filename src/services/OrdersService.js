@@ -2,6 +2,7 @@
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const NotFoundError = require('../exceptions/NotFoundError');
+const ClientError = require('../exceptions/ClientError');
 
 class OrdersService {
   constructor(productsService, usersService) {
@@ -55,7 +56,7 @@ class OrdersService {
     
     const orderQuery = {
       text: 'INSERT INTO orders VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id',
-      values: [id, items, totalPrice, transactionAmount, remainingPayment, pointsValue, status, date, userId],
+      values: [id, items.map(JSON.stringify), totalPrice, transactionAmount, remainingPayment, pointsValue, status, date, userId],
     };
     const result = await this._pool.query(orderQuery);
     return result.rows[0].id;
@@ -63,6 +64,16 @@ class OrdersService {
 
   async getAllItem() {
     const result = await this._pool.query('SELECT * FROM orders');
+    return result.rows;
+  }
+
+  async getPendingOrders() {
+    const result = await this._pool.query("SELECT * FROM orders WHERE status = 'pending'");
+    return result.rows;
+  }
+
+  async getSuccessOrders() {
+    const result = await this._pool.query("SELECT * FROM orders WHERE status = 'success'");
     return result.rows;
   }
 
@@ -92,6 +103,63 @@ class OrdersService {
     }
 
     return result.rows[0];
+  }
+
+  async editStatusOrderById(orderId, newStatus) {
+    const orderQuery = {
+      text: 'SELECT * FROM orders WHERE id = $1',
+      values: [orderId],
+    };
+    const orderResult = await this._pool.query(orderQuery);
+  
+    if (orderResult.rows.length === 0) {
+      throw new NotFoundError('Order not found');
+    }
+  
+    const order = orderResult.rows[0];
+  
+    if (order.status === newStatus) {
+      throw new BadRequestError(`Order status is already "${newStatus}"`);
+    }
+  
+    if (newStatus === 'failed') {
+      const { items } = order;
+  
+      for (const item of items) {
+        const { productId, quantity } = item;
+  
+        const productQuery = {
+          text: 'SELECT * FROM products WHERE id = $1',
+          values: [productId],
+        };
+  
+        // eslint-disable-next-line no-await-in-loop
+        const productResult = await this._pool.query(productQuery);
+  
+        if (productResult.rows.length === 0) {
+          throw new NotFoundError(`Product with id ${productId} not found`);
+        }
+  
+        const product = productResult.rows[0];
+        const newStock = product.stock + quantity;
+  
+        const updateProductQuery = {
+          text: 'UPDATE products SET stock = stock + $1 WHERE id = $2',
+          values: [quantity, productId],
+        };
+  
+        // eslint-disable-next-line no-await-in-loop
+        await this._pool.query(updateProductQuery);
+      }
+    }
+  
+    const updateOrderQuery = {
+      text: 'UPDATE orders SET status = $1 WHERE id = $2',
+      values: [newStatus, orderId],
+    };
+    await this._pool.query(updateOrderQuery);
+  
+    return true;
   }
 }
 

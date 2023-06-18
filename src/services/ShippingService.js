@@ -1,6 +1,7 @@
 const { Pool } = require('pg');
-// const { nanoid } = require('nanoid');
+const { nanoid } = require('nanoid');
 const axios = require('axios');
+const InvariantError = require('../exceptions/InvariantError');
 // const InvariantError = require('../exceptions/InvariantError');
 // const NotFoundError = require('../exceptions/NotFoundError');
 // const AuthorizationError = require('../exceptions/AuthorizationError');
@@ -75,6 +76,52 @@ class ShippingService {
         isCache: false 
       };
     }
+  }
+
+  async addOrigin({ province, city }) {
+    await this.verifyNewOrigin();
+    const id = `origin-${nanoid(16)}`;
+    const query = {
+      text: 'INSERT INTO origin VALUES($1, $2, $3) RETURNING id',
+      values: [id, province, city],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rows.length) {
+      throw new InvariantError('origin gagal ditambahkan');
+    }
+    return result.rows[0].id;
+  }
+
+  async verifyNewOrigin() {
+    const query = {
+      text: 'SELECT id FROM origin LIMIT 1',
+    };
+  
+    const result = await this._pool.query(query);
+  
+    if (result.rows.length > 0) {
+      throw new InvariantError('Tidak boleh lebih dari satu origin');
+    }
+  }
+
+  async editOrigin(id, { province, city }) {
+    const query = {
+      text: 'UPDATE origin SET province_id = $1, city_id = $2 WHERE id = $3 RETURNING id',
+      values: [province, city, id],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rows.length) {
+      throw new NotFoundError('Gagal memperbarui origin. Id tidak ditemukan');
+    }
+  }
+
+  async getAllOrigin() {
+    const result = await this._pool.query('SELECT * FROM origin');
+    return result.rows;
   }
 }
 

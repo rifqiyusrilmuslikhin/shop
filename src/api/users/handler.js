@@ -9,6 +9,7 @@ class UsersHandler {
     this.resetPasswordHandler = this.resetPasswordHandler.bind(this);
     this.getUsersHandler = this.getUsersHandler.bind(this);
     this.getUserByIdHandler = this.getUserByIdHandler.bind(this);
+    this.getUserByCredentialHandler = this.getUserByCredentialHandler.bind(this);
   }
    
   async postUserHandler(request, h) {
@@ -83,7 +84,7 @@ class UsersHandler {
     };
   }
 
-  async getUserByIdHandler() {
+  async getUserByIdHandler(request) {
     const { id } = request.params;
 
     const user = await this._service.getUserById(id);
@@ -94,8 +95,19 @@ class UsersHandler {
         user,
       },
     };
-    response.code(201);
-    return response;
+  }
+
+  async getUserByCredentialHandler(request) {
+    const { id: credentialId } = request.auth.credentials;
+
+    const user = await this._service.getUserById(credentialId);
+
+    return {
+      status: 'success',
+      data: {
+        user,
+      },
+    };
   }
 }
   

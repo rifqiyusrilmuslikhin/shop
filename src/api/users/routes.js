@@ -30,6 +30,14 @@ const routes = (handler) => [
   },
   {
     method: 'GET',
+    path: '/api/users/credentials',
+    handler: handler.getUserByCredentialHandler,
+    options: {
+      auth: 'shop_jwt',
+    },
+  },
+  {
+    method: 'GET',
     path: '/activate',
     handler: handler.activateAccountHandler,
   },
@@ -40,7 +48,7 @@ const routes = (handler) => [
   },
   {
     method: 'POST',
-    path: '/reset-password',
+    path: '/api/users/reset-password',
     handler: handler.resetPasswordHandler,
   },
 ];

@@ -34,8 +34,8 @@ class ProductHandler {
     return response;
   }
 
-  async getAllProductHandler() {
-    const products = await this._productsService.getAllProduct();
+  async getAllProductHandler(request) {
+    const products = await this._productsService.getAllProduct(request.query);
     return {
       status: 'success',
       data: {

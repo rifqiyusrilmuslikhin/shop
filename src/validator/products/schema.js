@@ -4,7 +4,7 @@ const ProductPayloadSchema = Joi.object({
   productName: Joi.string().required(),
   description: Joi.string().required(),
   price: Joi.number().positive().required(),
-  discount: Joi.number().positive().default(0),
+  discount: Joi.number().default(0),
   discountPrice: Joi.number().positive(),
   stock: Joi.number().positive()
 });

@@ -5,6 +5,8 @@ class AdminHandler {
    
     this.postAdminHandler = this.postAdminHandler.bind(this);
     this.getAllAdminHandler = this.getAllAdminHandler.bind(this);
+    this.getAdminByCredentialHandler = this.getAdminByCredentialHandler.bind(this);
+    this.putAdminHandler = this.putAdminHandler.bind(this);
   }
    
   async postAdminHandler(request, h) {
@@ -30,6 +32,32 @@ class AdminHandler {
       data: {
         admin,
       },
+    };
+  }
+
+  async getAdminByCredentialHandler(request) {
+    const { id: credentialId } = request.auth.credentials;
+
+    const admin = await this._service.getAdminById(credentialId);
+
+    return {
+      status: 'success',
+      data: {
+        admin,
+      },
+    };
+  }
+
+  async putAdminHandler(request) {
+    this._validator.validateAdminPayload(request.payload);
+    const { username, password } = request.payload;
+    const { id } = request.params;
+    
+    await this._service.editAdmin(id, { username, password });
+    
+    return {
+      status: 'success',
+      message: 'Admin berhasil diperbarui',
     };
   }
 }

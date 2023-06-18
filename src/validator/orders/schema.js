@@ -17,4 +17,8 @@ const OrderPayloadSchema = Joi.object({
   date: Joi.date().iso()
 });
 
-module.exports = { OrderPayloadSchema };
+const UpdateStatusPayloadSchema = Joi.object({
+  status: Joi.string().valid('pending', 'failed', 'success').required()
+});
+
+module.exports = { OrderPayloadSchema, UpdateStatusPayloadSchema };

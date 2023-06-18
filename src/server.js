@@ -34,6 +34,7 @@ const PaymentValidator = require('./validator/payment');
 
 const shipping = require('./api/shipping');
 const ShippingService = require('./services/ShippingService');
+const ShippingValidator = require('./validator/shipping');
 
 const StorageService = require('./services/StorageService');
 
@@ -148,7 +149,8 @@ const init = async () => {
     {
       plugin: shipping,
       options: {
-        shippingService
+        shippingService,
+        validator: ShippingValidator,
       }
     },
   ]);
